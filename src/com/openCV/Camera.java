@@ -99,6 +99,8 @@ public class Camera extends JFrame {
 		// TODO Auto-generated method stub
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		EventQueue.invokeLater(new Runnable() {
+			
+			
 		
 			public void run() {
 				Camera camera = new Camera();
