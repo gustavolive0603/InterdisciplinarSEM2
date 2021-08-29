@@ -1,12 +1,16 @@
 package com.openCV;
 
+
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,7 +20,13 @@ import javax.swing.JOptionPane;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.videoio.VideoCapture;
 
 public class Camera extends JFrame {
@@ -30,18 +40,19 @@ public class Camera extends JFrame {
 	private VideoCapture capture;
 	private Mat image;
 	
+	
 	private boolean clicked = false;
 	
 	public Camera() {
+		
+		
 		setLayout(null);
 		
 		cameraScreen = new JLabel();
 		cameraScreen.setBounds(0,0,640,480);
 		add(cameraScreen);
 		
-		btnCapture = new JButton("capture");
-		btnCapture.setBounds(300,480,80,40);
-		add(btnCapture);
+		this.addButoons();
 		
 		btnCapture.addActionListener(new ActionListener() {
 
@@ -60,7 +71,7 @@ public class Camera extends JFrame {
 		setVisible(true);
 	}
 
-	public void startCamera (){
+	public void startCamera () throws IOException{
 		capture = new VideoCapture(0);
 		image = new Mat();
 		byte[] imageData;
@@ -76,31 +87,95 @@ public class Camera extends JFrame {
 			Imgcodecs.imencode(".jpg",image,buf);
 			
 			imageData = buf.toArray();
-			
 			icon = new ImageIcon(imageData);
 			cameraScreen.setIcon(icon);
+			
+			
 			if(clicked) {
-				String name = JOptionPane.showInputDialog(this,"Enter image name");
+				
+				String name = JOptionPane.showInputDialog(this,"Insira o nome da pessoa");
 				if(name == null) {
-					name = new SimpleDateFormat("yyyy-mm-dd-hh-mm-ss").format(new 
-												Date());
+					JOptionPane.showMessageDialog(null,"mensagem ");
+					return;
 				}
 				
 				Imgcodecs.imwrite("images/" + name + ".jpg",image);
-				
+				this.extrai_face(image, name);
 				clicked = false;
 			}
 			
 			
 		}
 	}
+
+	
+	public void addButoons() {
+		btnCapture = new JButton("Cadastrar");
+		btnCapture.setBounds(0,480,100,40);
+		add(btnCapture);
+	}
+	
+	public void extrai_face(Mat test,String name) throws IOException{
+		
+		int x = 0,y=0,l=0,a=0;
+		Mat src = test;
+		
+		
+		String xmlFile = "haarcascades\\haarcascade_frontalface_default.xml";
+		CascadeClassifier cc = new CascadeClassifier(xmlFile);
+		
+		MatOfRect faceDetection = new MatOfRect();
+		cc.detectMultiScale(src, faceDetection);
+		System.out.println(String.format("Detected faces: %d", faceDetection.toArray().length));
+		
+		for(Rect rect: faceDetection.toArray()) {
+			Imgproc.rectangle(src, new Point(x= rect.x,y= rect.y), new Point(rect.x + rect.width, rect.y + rect.height) , new Scalar(0, 0, 255), 3);
+			System.out.print(faceDetection.elemSize());
+			x = rect.x*2;
+			y = rect.y*2;
+			l = rect.x + rect.width;
+			a = rect.y + rect.height;
+		
+		}
+		String path = "images/" + name + ".jpg";
+		String face = "images/" + name + "Face.jpg";
+		
+		Imgcodecs.imwrite("images/" + name + ".jpg",src);
+
+		if(faceDetection.toArray().length >= 1 ) {
+			JOptionPane.showMessageDialog(this, "Rosto do "+ name + " cadastrado com sucesso");
+		}else {
+			JOptionPane.showMessageDialog(this, "Erro rosto não encontrado");
+		}
+		crop(path,face,x,y,l,a);
+		
+	}
+	
+	
+	public static void crop(String imagePathToRead,
+            					  String imagePathToWrite,int initX, int initY, int resizeWidth, int resizeHeight)
+            					  throws IOException {
+
+		File fileToRead = new File(imagePathToRead);
+		BufferedImage bufferedImageInput = ImageIO.read(fileToRead);
+		
+		BufferedImage bufferedImageOutput = new BufferedImage(resizeWidth,
+		resizeHeight, bufferedImageInput.getType());
+		
+		Graphics2D g2d = bufferedImageOutput.createGraphics();
+		g2d.drawImage(bufferedImageInput, -(initX), -(initY),(resizeWidth), (resizeHeight), null);
+		g2d.dispose();
+		
+		String formatName = imagePathToWrite.substring(imagePathToWrite
+		.lastIndexOf(".") + 1);
+		
+		ImageIO.write(bufferedImageOutput, formatName, new File(imagePathToWrite));
+}
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		EventQueue.invokeLater(new Runnable() {
-			
-			
 		
 			public void run() {
 				Camera camera = new Camera();
@@ -109,7 +184,12 @@ public class Camera extends JFrame {
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
-						camera.startCamera();
+						try {
+							camera.startCamera();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 					
 				}).start();
