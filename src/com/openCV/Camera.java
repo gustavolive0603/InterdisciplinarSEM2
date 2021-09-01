@@ -43,6 +43,8 @@ public class Camera extends JFrame {
 	
 	private boolean clicked = false;
 	
+	
+	//metodo construtor 
 	public Camera() {
 		
 		
@@ -52,6 +54,7 @@ public class Camera extends JFrame {
 		cameraScreen.setBounds(0,0,640,480);
 		add(cameraScreen);
 		
+		//inicia botoes
 		this.addButoons();
 		
 		btnCapture.addActionListener(new ActionListener() {
@@ -71,6 +74,7 @@ public class Camera extends JFrame {
 		setVisible(true);
 	}
 
+	//faz a captura da camera padrao do sistema 
 	public void startCamera () throws IOException{
 		capture = new VideoCapture(0);
 		image = new Mat();
@@ -108,7 +112,7 @@ public class Camera extends JFrame {
 		}
 	}
 
-	
+	//adiciona botoes 
 	public void addButoons() {
 		btnCapture = new JButton("Cadastrar");
 		btnCapture.setBounds(0,480,100,40);
@@ -116,9 +120,11 @@ public class Camera extends JFrame {
 	}
 	
 	
-	
+	//funcao que tenta extrai a face 
 	public void extrai_face(Mat test,String name) throws IOException{
-		
+		/*
+		 * ainda não está pronto!!
+		 */
 		int x = 0,y=0,l=0,a=0;
 		Mat src = test;
 		
@@ -153,11 +159,13 @@ public class Camera extends JFrame {
 		
 	}
 	
-	
+	//funçao para pegar imagem na cara 
 	public static void crop(String imagePathToRead,
             					  String imagePathToWrite,int initX, int initY, int resizeWidth, int resizeHeight)
             					  throws IOException {
-		
+		/*
+		 * ainda nao esta pronto
+		 */
 		
 		File fileToRead = new File(imagePathToRead);
 		BufferedImage bufferedImageInput = ImageIO.read(fileToRead);
