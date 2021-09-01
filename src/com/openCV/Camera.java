@@ -115,6 +115,8 @@ public class Camera extends JFrame {
 		add(btnCapture);
 	}
 	
+	
+	
 	public void extrai_face(Mat test,String name) throws IOException{
 		
 		int x = 0,y=0,l=0,a=0;
@@ -130,11 +132,11 @@ public class Camera extends JFrame {
 		
 		for(Rect rect: faceDetection.toArray()) {
 			Imgproc.rectangle(src, new Point(x= rect.x,y= rect.y), new Point(rect.x + rect.width, rect.y + rect.height) , new Scalar(0, 0, 255), 3);
-			System.out.print(faceDetection.elemSize());
-			x = rect.x*2;
-			y = rect.y*2;
-			l = rect.x + rect.width;
-			a = rect.y + rect.height;
+			x = rect.x;
+			y = rect.y;
+			l = 230;
+			a = 230;
+			System.out.print(y);
 		
 		}
 		String path = "images/" + name + ".jpg";
@@ -155,7 +157,8 @@ public class Camera extends JFrame {
 	public static void crop(String imagePathToRead,
             					  String imagePathToWrite,int initX, int initY, int resizeWidth, int resizeHeight)
             					  throws IOException {
-
+		
+		
 		File fileToRead = new File(imagePathToRead);
 		BufferedImage bufferedImageInput = ImageIO.read(fileToRead);
 		
@@ -163,7 +166,7 @@ public class Camera extends JFrame {
 		resizeHeight, bufferedImageInput.getType());
 		
 		Graphics2D g2d = bufferedImageOutput.createGraphics();
-		g2d.drawImage(bufferedImageInput, -(initX), -(initY),(resizeWidth), (resizeHeight), null);
+		g2d.drawImage(bufferedImageInput, 0, 0,resizeWidth, resizeHeight, null);
 		g2d.dispose();
 		
 		String formatName = imagePathToWrite.substring(imagePathToWrite
