@@ -169,7 +169,7 @@ public class Camera extends JFrame {
 		}else {
 			JOptionPane.showMessageDialog(this, "Erro rosto não encontrado");
 		}
-		crop(path,face,x,y, l,a);
+		
 		
 	}
 	
