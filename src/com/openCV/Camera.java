@@ -8,8 +8,11 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -170,32 +173,43 @@ public class Camera extends JFrame {
 		
 	}
 	
-	//funçao para pegar imagem na cara 
-	public static void crop(String imagePathToRead,
-            					  String imagePathToWrite,int initX, int initY, int resizeWidth, int resizeHeight)
-            					  throws IOException {
-		/*
-		 * ainda nao esta pronto
-		 */
-		newImage = new SpriteSheet(imagePathToRead);
-		
-		
-		File fileToRead = new File(imagePathToRead);
-		BufferedImage bufferedImageInput = ImageIO.read(fileToRead);
-		
-		BufferedImage bufferedImageOutput = newImage.getSprite(initX,initY,resizeWidth,resizeHeight);
-		//BufferedImage bufferedImageOutput = new BufferedImage(resizeWidth,resizeHeight, bufferedImageInput.getType());
-		
-		Graphics g2d = bufferedImageOutput.createGraphics();
-		g2d.drawImage(bufferedImageInput, 0, 0,resizeWidth, resizeHeight, null);
-		g2d.dispose();
-		
-		String formatName = imagePathToWrite.substring(imagePathToWrite
-		.lastIndexOf(".") + 1);
-		
-		ImageIO.write(bufferedImageOutput, formatName, new File(imagePathToWrite));
-		
-}
+	public static byte[] getImgBytes(BufferedImage image) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(image, "JPEG", baos);
+        } catch (IOException ex) {
+            //handle it here.... not implemented yet...
+        }
+        
+        InputStream is = new ByteArrayInputStream(baos.toByteArray());
+        
+        return baos.toByteArray();
+    }
+	
+	public static void exibiImagemLabel(byte[] minhaimagem, javax.swing.JLabel label) {
+	        //primeiro verifica se tem a imagem
+	        //se tem convert para inputstream que é o formato reconhecido pelo ImageIO
+	       
+	        if(minhaimagem!=null)
+	        {
+	            InputStream input = new ByteArrayInputStream(minhaimagem);
+	            try {
+	                BufferedImage imagem = ImageIO.read(input);
+	                label.setIcon(new ImageIcon(imagem));
+	            } catch (IOException ex) {
+	            }
+	            
+	        
+	        }
+	        else
+	        {
+	            label.setIcon(null);
+	            
+	        }
+
+	}
+
+	
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
