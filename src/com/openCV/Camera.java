@@ -149,10 +149,6 @@ public class Camera extends JFrame {
 		
 		for(Rect rect: faceDetection.toArray()) {
 			Imgproc.rectangle(src, new Point(x= rect.x,y= rect.y), new Point(rect.x + rect.width, rect.y + rect.height) , new Scalar(0, 0, 255), 3);
-			x = rect.x;
-			y = rect.y;
-			l = 230;
-			a = 230;
 			
 		
 		}
