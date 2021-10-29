@@ -3,6 +3,7 @@ package com.openCV;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,10 +36,13 @@ public class Camera extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JLabel cameraScreen;
+	private static JLabel cameraScreen;
 	private JButton btnCapture;
 	private VideoCapture capture;
-	private Mat image;
+	private static MatOfByte frameB;
+	private static Mat image;
+	private static SpriteSheet newImage;
+	private static String name;
 	
 	
 	private boolean clicked = false;
@@ -47,12 +51,13 @@ public class Camera extends JFrame {
 	//metodo construtor 
 	public Camera() {
 		
-		
+		frameB = new MatOfByte();
 		setLayout(null);
 		
 		cameraScreen = new JLabel();
 		cameraScreen.setBounds(0,0,640,480);
 		add(cameraScreen);
+		
 		
 		//inicia botoes
 		this.addButoons();
@@ -76,12 +81,14 @@ public class Camera extends JFrame {
 
 	//faz a captura da camera padrao do sistema 
 	public void startCamera () throws IOException{
+		
 		capture = new VideoCapture(0);
 		image = new Mat();
 		byte[] imageData;
 		
 		
 		ImageIcon icon;
+		
 		while(true) {
 			
 			capture.read(image);
@@ -97,15 +104,16 @@ public class Camera extends JFrame {
 			
 			if(clicked) {
 				
-				String name = JOptionPane.showInputDialog(this,"Insira o nome da pessoa");
+				name = JOptionPane.showInputDialog(this,"Insira o nome da pessoa");
 				if(name == null) {
-					JOptionPane.showMessageDialog(null,"mensagem ");
-					return;
+					JOptionPane.showMessageDialog(null,"erro");
+					continue;
 				}
 				
 				Imgcodecs.imwrite("images/" + name + ".jpg",image);
-				this.extrai_face(image, name);
+				this.localiza_face(image, name);
 				clicked = false;
+				
 			}
 			
 			
@@ -121,7 +129,7 @@ public class Camera extends JFrame {
 	
 	
 	//funcao que tenta extrai a face 
-	public void extrai_face(Mat test,String name) throws IOException{
+	public void localiza_face(Mat test,String name) throws IOException{
 		/*
 		 * ainda não está pronto!!
 		 */
@@ -142,20 +150,23 @@ public class Camera extends JFrame {
 			y = rect.y;
 			l = 230;
 			a = 230;
-			System.out.print(y);
+			
 		
 		}
 		String path = "images/" + name + ".jpg";
 		String face = "images/" + name + "Face.jpg";
 		
-		Imgcodecs.imwrite("images/" + name + ".jpg",src);
+		Imgcodecs.imwrite(path,src);
+		
+		
+		
 
 		if(faceDetection.toArray().length >= 1 ) {
 			JOptionPane.showMessageDialog(this, "Rosto do "+ name + " cadastrado com sucesso");
 		}else {
 			JOptionPane.showMessageDialog(this, "Erro rosto não encontrado");
 		}
-		crop(path,face,x,y,l,a);
+		crop(path,face,x,y, l,a);
 		
 	}
 	
@@ -166,14 +177,16 @@ public class Camera extends JFrame {
 		/*
 		 * ainda nao esta pronto
 		 */
+		newImage = new SpriteSheet(imagePathToRead);
+		
 		
 		File fileToRead = new File(imagePathToRead);
 		BufferedImage bufferedImageInput = ImageIO.read(fileToRead);
 		
-		BufferedImage bufferedImageOutput = new BufferedImage(resizeWidth,
-		resizeHeight, bufferedImageInput.getType());
+		BufferedImage bufferedImageOutput = newImage.getSprite(initX,initY,resizeWidth,resizeHeight);
+		//BufferedImage bufferedImageOutput = new BufferedImage(resizeWidth,resizeHeight, bufferedImageInput.getType());
 		
-		Graphics2D g2d = bufferedImageOutput.createGraphics();
+		Graphics g2d = bufferedImageOutput.createGraphics();
 		g2d.drawImage(bufferedImageInput, 0, 0,resizeWidth, resizeHeight, null);
 		g2d.dispose();
 		
@@ -181,6 +194,7 @@ public class Camera extends JFrame {
 		.lastIndexOf(".") + 1);
 		
 		ImageIO.write(bufferedImageOutput, formatName, new File(imagePathToWrite));
+		
 }
 	
 	public static void main(String[] args) {
